@@ -1,5 +1,7 @@
 #include "Piezas.h"
 #include <vector>
+#include <iostream>
+using namespace std;
 /** CLASS Piezas
  * Class for representing a Piezas vertical board, which is roughly based
  * on the game "Connect Four" where pieces are placed in a column and 
@@ -22,6 +24,12 @@
 **/
 Piezas::Piezas()
 {
+    turn = X;
+    board.resize(BOARD_ROWS);
+    for (int i = 0; i < (int)board.size(); i++)
+    {
+        board[i].resize(BOARD_COLS, Blank);
+    }
 }
 
 /**
@@ -30,6 +38,13 @@ Piezas::Piezas()
 **/
 void Piezas::reset()
 {
+    for (int i = 0; i < BOARD_ROWS; i++)
+    {
+        for (int j = 0; j < BOARD_COLS; j++)
+        {
+            board[i][j] = Blank;
+        }
+    }
 }
 
 /**
@@ -42,6 +57,30 @@ void Piezas::reset()
 **/ 
 Piece Piezas::dropPiece(int column)
 {
+    Piece p = turn;
+    if (turn == X)
+    {
+        turn = O;
+    }else
+    {
+        turn = X;
+    }
+
+    if (column >= BOARD_COLS || column<0)
+    {
+        return Invalid;
+    }
+
+    for (int i = BOARD_ROWS - 1; i >= 0; i--)
+    {
+        if (board[i][column] == Blank)
+        {
+            board[i][column] = p;
+            return p;
+        }
+        
+    }
+    
     return Blank;
 }
 
@@ -51,7 +90,11 @@ Piece Piezas::dropPiece(int column)
 **/
 Piece Piezas::pieceAt(int row, int column)
 {
-    return Blank;
+    if (row >= BOARD_ROWS || row < 0 || column >= BOARD_COLS || column < 0)
+    {
+        return Invalid;
+    }
+    return board[row][column];
 }
 
 /**
@@ -65,5 +108,88 @@ Piece Piezas::pieceAt(int row, int column)
 **/
 Piece Piezas::gameState()
 {
-    return Blank;
+    for (int i = 0; i < BOARD_ROWS; i++)
+    {
+        for (int j = 0; j < BOARD_COLS; j++)
+        {
+            if (board[i][j] == Blank)
+            {
+                return Invalid;
+            }
+        }
+    }
+    int xPlayer = 0;
+    int oPlayer = 0;
+    //CHECKING THE HORIZONTAL COUNTS FIRST
+    for (int i = 0; i < BOARD_ROWS; i++)
+    {
+        int tempXcounter = 0;
+        int tempOcounter = 0;
+        for (int j = 0; j < BOARD_COLS-1; j++)
+        {
+            if (board[i][j] == board[i][j+1])
+            {
+                if (board[i][j] == X)
+                {
+                    tempXcounter++;
+                    if (xPlayer<tempXcounter)
+                    {
+                        xPlayer = tempXcounter;
+                    }
+                }else{
+                    tempOcounter++;
+                    if (oPlayer<tempOcounter)
+                    {
+                        oPlayer = tempOcounter;
+                    }
+                }
+            }else
+            {
+                tempXcounter = 0;
+                tempOcounter = 0;
+            }
+        }
+    }
+
+    //CHECKING THE VERTICLE COUNTS FIRST
+    for (int i = 0; i < BOARD_COLS; i++)
+    {
+        int tempXcounter = 0;
+        int tempOcounter = 0;
+        for (int j = 0; j < BOARD_ROWS-1; j++)
+        {
+            if (board[j][i] == board[j+1][i])
+            {
+                if (board[j][i] == X)
+                {
+                    tempXcounter++;
+                    if (xPlayer<tempXcounter)
+                    {
+                        xPlayer = tempXcounter;
+                    }
+                }else{
+                    tempOcounter++;
+                    if (oPlayer<tempOcounter)
+                    {
+                        oPlayer = tempOcounter;
+                    }
+                }
+            }else
+            {
+                tempXcounter = 0;
+                tempOcounter = 0;
+            }
+        }
+    }
+
+    if (xPlayer>oPlayer)
+    {
+        return X;
+    }else if(xPlayer<oPlayer)
+    {
+        return O;
+    }else{
+        return Blank;
+    }
+    
 }
